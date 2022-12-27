@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty_characters_app/services/character_service.dart';
+import 'package:rick_and_morty_characters_app/utils/env.dart';
 
-import 'services/api/base_api.dart';
+Map<String, String>? env;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  env = await loadEnvFile('assets/env/.env');
   runApp(const MyApp());
 }
 
@@ -53,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-
+    CharacterService().getCharacters();
   }
 
   @override

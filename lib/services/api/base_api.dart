@@ -1,27 +1,33 @@
 import 'dart:async';
 import 'package:graphql/client.dart';
-import 'dart:io' show stderr;
 import 'package:gql/ast.dart';
+import 'package:rick_and_morty_characters_app/constants/error_constants.dart';
+import 'package:rick_and_morty_characters_app/main.dart';
+import 'package:rick_and_morty_characters_app/models/app_exception.dart';
+import 'package:rick_and_morty_characters_app/utils/custom_connectivity/custom_connectivity.dart';
 
-class BaseApi {
-  GraphQLClient getGithubGraphQLClient() {
+mixin BaseApi {
+  CustomConnectivity get connectivity;
+
+  Future<dynamic> callApi({required DocumentNode document}) async {
+    if (!await connectivity.isConnected()) {
+      throw AppException(code: ErrorConstants.NOT_INTERNET);
+    }
     final Link link = HttpLink(
-      'https://rickandmortyapi.com/graphql',
+      env!['BASE_URL']!,
     );
-    return GraphQLClient(
+    final GraphQLClient client = GraphQLClient(
       cache: GraphQLCache(),
       link: link,
     );
-  }
-
-  Future<dynamic> callApi({required DocumentNode document}) async {
-    final GraphQLClient client = getGithubGraphQLClient();
     final QueryOptions options = QueryOptions(
       document: document,
     );
-    final QueryResult result = await client.query(options);
-    if (result.hasException) {
-      stderr.writeln(result.exception.toString());
+    try {
+      final QueryResult result = await client.query(options);
+      return result.data;
+    } catch (error) {
+      rethrow;
     }
   }
 }
