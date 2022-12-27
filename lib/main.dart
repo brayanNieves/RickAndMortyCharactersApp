@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:rick_and_morty_characters_app/services/character_service.dart';
+import 'package:rick_and_morty_characters_app/blocs/character_bloc.dart';
+import 'package:rick_and_morty_characters_app/pages/character/character_page.dart';
 import 'package:rick_and_morty_characters_app/utils/env.dart';
+import 'package:get_it/get_it.dart';
 
 Map<String, String>? env;
+final getIt = GetIt.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   env = await loadEnvFile('assets/env/.env');
+  getIt.registerSingleton<CharacterBloc>(CharacterBloc(),
+      signalsReady: true);
   runApp(const MyApp());
 }
 
@@ -18,6 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -30,7 +36,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const CharacterPage(),
     );
   }
 }
@@ -57,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    CharacterService().getCharacters();
+    CharacterBloc().getCharacter();
   }
 
   @override
@@ -73,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        elevation: 1.0,
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it

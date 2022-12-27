@@ -11,5 +11,4 @@ abstract class ApiService with BaseApi {
   ApiService() {
     _connectivity = ConnectivityAdapter();
   }
-
 }
