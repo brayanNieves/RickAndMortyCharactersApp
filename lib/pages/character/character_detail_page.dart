@@ -34,10 +34,23 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        widget.characterModel.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 28.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.characterModel.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w800, fontSize: 28.0),
+                            ),
+                          ),
+                          Chip(
+                            label: Text(
+                              widget.characterModel.status,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
                         widget.characterModel.gender,

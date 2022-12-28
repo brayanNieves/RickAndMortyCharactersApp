@@ -1,4 +1,5 @@
 import 'package:graphql/client.dart';
+import 'package:rick_and_morty_characters_app/constants/constants.dart';
 import 'package:rick_and_morty_characters_app/models/character_model.dart';
 import 'package:rick_and_morty_characters_app/models/ws_response.dart';
 import 'package:rick_and_morty_characters_app/services/api/api_service.dart';
@@ -6,7 +7,7 @@ import 'package:rick_and_morty_characters_app/services/api/api_service.dart';
 mixin CharacterApi {
   Future<WsResponse> getAll(int page);
 
-  Future<WsResponse> filter(String query, int page);
+  Future<WsResponse> filter(String query, int page, String filterBy);
 }
 
 class CharacterService extends ApiService implements CharacterApi {
@@ -22,7 +23,9 @@ class CharacterService extends ApiService implements CharacterApi {
       id,
       name,
       gender,
-      image
+      image,
+      status,
+      species
        }
      }
      }
@@ -37,22 +40,9 @@ class CharacterService extends ApiService implements CharacterApi {
   }
 
   @override
-  Future<WsResponse> filter(String searchValue, int page) async {
-    dynamic query = r'''
-      query filter($query:String!, $page:Int!) {
-         characters (page: $page, filter: { name: $query }) {
-        info {
-          count
-       }
-      results {
-      id,
-      name,
-      gender,
-      image
-       }
-     }
-     }
-      ''';
+  Future<WsResponse> filter(
+      String searchValue, int page, String filterBy) async {
+    dynamic query = getFilter(filterBy);
     dynamic resp = await callApi(
       document: gql(
         query,
@@ -60,5 +50,66 @@ class CharacterService extends ApiService implements CharacterApi {
       variables: <String, dynamic>{'query': searchValue, 'page': page},
     );
     return WsResponse(data: CharacterModel.fromJson(resp));
+  }
+
+  String getFilter(String filter) {
+    switch (filter) {
+      case Constants.FILTER_BY_NAME:
+        return r'''
+      query filter($query:String!, $page:Int!) {
+         characters (page: $page, filter: { name: $query}) {
+        info {
+          count
+       }
+      results {
+      id,
+      name,
+      gender,
+      image,
+      status,
+      species
+       }
+     }
+     }
+      ''';
+      case Constants.FILTER_BY_SPECIES:
+        return r'''
+      query filter($query:String!, $page:Int!) {
+         characters (page: $page, filter: { species: $query }) {
+        info {
+          count
+       }
+      results {
+      id,
+      name,
+      gender,
+      image,
+      status,
+      species
+       }
+     }
+     }
+      ''';
+      case Constants.FILTER_BY_STATUS:
+        return r'''
+      query filter($query:String!, $page:Int!) {
+         characters (page: $page, filter: { status: $query}) {
+        info {
+          count
+       }
+      results {
+      id,
+      name,
+      gender,
+      image,
+      status,
+      species
+       }
+     }
+     }
+      ''';
+      default:
+        return '';
+    }
   }
 }
