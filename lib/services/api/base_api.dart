@@ -9,7 +9,8 @@ import 'package:rick_and_morty_characters_app/utils/custom_connectivity/custom_c
 mixin BaseApi {
   CustomConnectivity get connectivity;
 
-  Future<dynamic> callApi({required DocumentNode document}) async {
+  Future<dynamic> callApi(
+      {required DocumentNode document, Map<String, String>? variables}) async {
     if (!await connectivity.isConnected()) {
       throw AppException(code: ErrorConstants.NOT_INTERNET);
     }
@@ -20,9 +21,8 @@ mixin BaseApi {
       cache: GraphQLCache(),
       link: link,
     );
-    final QueryOptions options = QueryOptions(
-      document: document,
-    );
+    final QueryOptions options =
+        QueryOptions(document: document, variables: variables ?? {});
     try {
       final QueryResult result = await client.query(options);
       return result.data;

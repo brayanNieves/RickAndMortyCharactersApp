@@ -13,12 +13,14 @@ class CharacterBloc extends Bloc {
       _characterQueryController.stream;
   late Stream<CharacterModel> articlesStream;
 
-  Future<void> getCharacter() async {
-    WsResponse response = await _characterRepository.getAll();
+  Future<List<CharacterModel>> getCharacter(int pageKey) async {
+    WsResponse response = await _characterRepository.getAll(pageKey);
     if (response.success) {
       CharacterModel characterModel = response.data;
       _characterQueryController.add(characterModel.characters);
+      return characterModel.characters;
     }
+    return [];
   }
 
   @override

@@ -5,4 +5,11 @@ extension BuildContextExtension on BuildContext {
     return await Navigator.push(
         this, MaterialPageRoute(builder: (context) => screen));
   }
+
+  void clearFocus() {
+    FocusScopeNode currentFocus = FocusScope.of(this);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  }
 }

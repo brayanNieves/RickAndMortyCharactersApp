@@ -1,82 +1,103 @@
 import 'package:flutter/material.dart';
-import 'package:rick_and_morty_characters_app/blocs/character_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:rick_and_morty_characters_app/commons/search_widget.dart';
 import 'package:rick_and_morty_characters_app/main.dart';
 import 'package:rick_and_morty_characters_app/models/character_model.dart';
 import 'package:rick_and_morty_characters_app/pages/character/character_detail_page.dart';
 import 'package:rick_and_morty_characters_app/utils/extensions/extensions.dart';
+import '../../blocs/character_bloc.dart';
 
 class CharacterPage extends StatefulWidget {
-  const CharacterPage({Key? key}) : super(key: key);
+  const CharacterPage({super.key});
 
   @override
-  State<CharacterPage> createState() => _CharacterPageState();
+  _CharacterPageState createState() => _CharacterPageState();
 }
 
 class _CharacterPageState extends State<CharacterPage> {
+  final _numberOfPostsPerRequest = 20;
+  final _searchController = TextEditingController();
+
+  final PagingController<int, CharacterModel> _pagingController =
+      PagingController(firstPageKey: 1);
+
   @override
   void initState() {
-    getIt<CharacterBloc>().getCharacter();
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
     super.initState();
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      List<CharacterModel> character =
+          await getIt<CharacterBloc>().getCharacter(pageKey);
+      final isLastPage = character.length < _numberOfPostsPerRequest;
+      if (isLastPage) {
+        _pagingController.appendLastPage(character);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(character, nextPageKey);
+      }
+    } catch (e) {
+      _pagingController.error = e;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200.0,
-            flexibleSpace: FlexibleSpaceBar(
-                background: Image.network(
-              'https://media.zenfs.com/en/nerdist_761/a8bad44634c783d662e8732922dc425a',
-              fit: BoxFit.cover,
-            )),
-          ),
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Text(
-                'Rick and Morty characters',
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 28.0),
-              ),
+      appBar: AppBar(
+        title: const Text("Rick and Morty characters"),
+        elevation: 1.0,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () => Future.sync((){
+          _pagingController.refresh();
+          context.clearFocus();
+        }),
+        child: Column(
+          children: [
+            SearchWidget(
+              controller: _searchController,
+              onChanged: (value){
+                print(value);
+              },
             ),
-          ),
-          StreamBuilder<List<CharacterModel>>(
-            stream: getIt<CharacterBloc>().characters,
-            builder: (BuildContext context,
-                AsyncSnapshot<List<CharacterModel>> snapshot) {
-              if (!snapshot.hasData) {
-                return const SliverToBoxAdapter(
-                    child: Center(child: CircularProgressIndicator()));
-              }
-              return SliverPadding(
-                padding: const EdgeInsets.only(top: 10.0),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      CharacterModel characterModel = snapshot.data![index];
-                      return ListTile(
-                        onTap: () => context.pushScreen(CharacterDetailPage(
-                          characterModel: characterModel,
-                        )),
-                        leading: Image.network(
-                          characterModel.image,
-                          width: 60.0,
-                          height: 60.0,
-                        ),
-                        title: Text(characterModel.name),
-                        subtitle: Text(characterModel.gender),
-                        trailing: const Icon(Icons.keyboard_arrow_right),
-                      );
-                    },
-                    childCount: snapshot.data!.length,
+            Expanded(
+              child: PagedListView<int, CharacterModel>.separated(
+                pagingController: _pagingController,
+                padding: const EdgeInsets.only(top: 20.0),
+                builderDelegate: PagedChildBuilderDelegate<CharacterModel>(
+                  itemBuilder: (context, item, index) => ListTile(
+                    onTap: () => context.pushScreen(CharacterDetailPage(
+                      characterModel: item,
+                    )),
+                    leading: Image.network(
+                      item.image,
+                      width: 60.0,
+                      height: 60.0,
+                    ),
+                    title: Text(item.name),
+                    subtitle: Text(item.gender),
+                    trailing: const Icon(Icons.keyboard_arrow_right),
                   ),
                 ),
-              );
-            },
-          ),
-        ],
+                separatorBuilder: (BuildContext context, int index) {
+                  return const Divider();
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 }
