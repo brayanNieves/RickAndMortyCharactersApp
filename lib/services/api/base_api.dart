@@ -10,7 +10,7 @@ mixin BaseApi {
   CustomConnectivity get connectivity;
 
   Future<dynamic> callApi(
-      {required DocumentNode document, Map<String, String>? variables}) async {
+      {required DocumentNode document, Map<String, dynamic>? variables}) async {
     if (!await connectivity.isConnected()) {
       throw AppException(code: ErrorConstants.NOT_INTERNET);
     }

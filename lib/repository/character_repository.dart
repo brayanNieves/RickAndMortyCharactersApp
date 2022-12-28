@@ -7,4 +7,8 @@ class CharacterRepository {
   Future<WsResponse> getAll(int page) {
     return _characterApi.getAll(page);
   }
+
+  Future<WsResponse> filter(String query, int page) {
+    return _characterApi.filter(query, page);
+  }
 }

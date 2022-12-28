@@ -23,6 +23,17 @@ class CharacterBloc extends Bloc {
     return [];
   }
 
+  Future<List<CharacterModel>> filterCharacter(String query, int page) async {
+    WsResponse response = await _characterRepository.filter(query, page);
+    _characterQueryController.add([]);
+    if (response.success) {
+      CharacterModel characterModel = response.data;
+      _characterQueryController.add(characterModel.characters);
+      return characterModel.characters;
+    }
+    return [];
+  }
+
   @override
   void dispose() {
     _characterQueryController.close();

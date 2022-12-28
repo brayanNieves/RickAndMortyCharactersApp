@@ -12,62 +12,9 @@ mixin CharacterApi {
 class CharacterService extends ApiService implements CharacterApi {
   @override
   Future<WsResponse> getAll(int page) async {
-    bool connected = await connectivity.isConnected();
-    // options: QueryOptions(
-    //   document: gql(r'''
-    //       query HeroForEpisode($ep: Episode!) {
-    //         hero(episode: $ep) {
-    //           __typename
-    //           name
-    //           ... on Droid {
-    //             primaryFunction
-    //           }
-    //           ... on Human {
-    //             height
-    //             homePlanet
-    //           }
-    //         }
-    //       }
-    //     '''),
-    //   variables: <String, String>{
-    //     'ep': episodeToJson(episode),
-    //   },
-    // );
-    dynamic resp = await callApi(
-      document: gql(
-        r'''
-      query {
-         characters (page: 1) {
-        info {
-          count
-       }
-      results {
-      id,
-      name,
-      gender,
-      image
-       }
-     }
-     }
-      ''',
-      ),
-      variables: <String, String>{'page': '1'},
-    );
-    return WsResponse(data: CharacterModel.fromJson(resp));
-  }
-
-  @override
-  Future<WsResponse> filter(String searchValue, int page) async {
-    final queryVariables = '''
-    {
-      "filter": {
-        "name": $searchValue
-      }
-    }
-    ''';
-    dynamic query = r'''
-      query {
-         characters (page: 1, filter: { name: "" }) {
+    String query = r'''
+      query getCharacter($page: Int!) {
+         characters (page: $page) {
         info {
           count
        }
@@ -84,7 +31,33 @@ class CharacterService extends ApiService implements CharacterApi {
       document: gql(
         query,
       ),
-      //variables: queryVariables,
+      variables: <String, dynamic>{'page': page},
+    );
+    return WsResponse(data: CharacterModel.fromJson(resp));
+  }
+
+  @override
+  Future<WsResponse> filter(String searchValue, int page) async {
+    dynamic query = r'''
+      query filter($query:String!, $page:Int!) {
+         characters (page: $page, filter: { name: $query }) {
+        info {
+          count
+       }
+      results {
+      id,
+      name,
+      gender,
+      image
+       }
+     }
+     }
+      ''';
+    dynamic resp = await callApi(
+      document: gql(
+        query,
+      ),
+      variables: <String, dynamic>{'query': searchValue, 'page': page},
     );
     return WsResponse(data: CharacterModel.fromJson(resp));
   }
