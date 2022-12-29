@@ -1,5 +1,7 @@
 import 'package:graphql/client.dart';
 import 'package:rick_and_morty_characters_app/constants/constants.dart';
+import 'package:rick_and_morty_characters_app/local_db/db_helper.dart';
+import 'package:rick_and_morty_characters_app/main.dart';
 import 'package:rick_and_morty_characters_app/models/character_model.dart';
 import 'package:rick_and_morty_characters_app/models/ws_response.dart';
 import 'package:rick_and_morty_characters_app/services/api/api_service.dart';
@@ -13,6 +15,22 @@ mixin CharacterApi {
 class CharacterService extends ApiService implements CharacterApi {
   @override
   Future<WsResponse> getAll(int page) async {
+    bool connected = await connectivity.isConnected();
+    if (!connected) {
+      List<Map<String, dynamic>> characters =
+          await getIt<DatabaseHelper>().queryAllRows();
+      return WsResponse(
+          data: CharacterModel.fromJson(null,
+              characters: characters
+                  .map((e) => CharacterModel(
+                      id: '${e['id']}',
+                      status: e['status'],
+                      name: e['name'],
+                      species: e['species'],
+                      gender: e['gender'],
+                      image: e['image']))
+                  .toList()));
+    }
     String query = r'''
       query getCharacter($page: Int!) {
          characters (page: $page) {

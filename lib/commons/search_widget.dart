@@ -13,6 +13,7 @@ class SearchWidget extends StatelessWidget {
       this.autocorrect = true,
       this.suffixIcon,
       this.enableSuggestions = true,
+      this.enabled = true,
       this.focusNode})
       : super(key: key);
 
@@ -28,11 +29,12 @@ class SearchWidget extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
   final Widget? suffixIcon;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
       child: Row(
         children: [
           Expanded(
@@ -49,6 +51,7 @@ class SearchWidget extends StatelessWidget {
                       controller: controller,
                       focusNode: focusNode,
                       onChanged: onChanged,
+                      enabled: enabled,
                       autocorrect: autocorrect,
                       enableSuggestions: enableSuggestions,
                       decoration: InputDecoration(
@@ -81,10 +84,11 @@ class SearchWidget extends StatelessWidget {
               ),
             ),
           ),
-          if (suffixIcon != null) Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: suffixIcon ?? const SizedBox.shrink(),
-          )
+          if (suffixIcon != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: suffixIcon ?? const SizedBox.shrink(),
+            )
         ],
       ),
     );

@@ -15,16 +15,20 @@ class CharacterModel {
       required this.species,
       required this.image});
 
-  CharacterModel.fromJson(dynamic json) {
-    List results = json['characters']['results'];
-    characters = results
-        .map((e) => CharacterModel(
-            id: e['id'],
-            status: e['status'],
-            name: e['name'],
-            species: e['species'],
-            gender: e['gender'],
-            image: e['image']))
-        .toList();
+  CharacterModel.fromJson(dynamic json, {List<CharacterModel>? characters}) {
+    if (characters != null) {
+      this.characters = characters;
+    } else {
+      List results = json['characters']['results'];
+      this.characters = results
+          .map((e) => CharacterModel(
+              id: e['id'],
+              status: e['status'],
+              name: e['name'],
+              species: e['species'],
+              gender: e['gender'],
+              image: e['image']))
+          .toList();
+    }
   }
 }

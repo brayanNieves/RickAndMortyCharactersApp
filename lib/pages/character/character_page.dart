@@ -95,6 +95,7 @@ class _CharacterPageState extends State<CharacterPage> {
           children: [
             SearchWidget(
               controller: _searchController,
+              enabled: _filterNotifier.value != null,
               suffixIcon: IconButton(
                 onPressed: () {
                   BottomSheetUtils.open(context,
@@ -119,7 +120,7 @@ class _CharacterPageState extends State<CharacterPage> {
                   (BuildContext context, FilterModel? filter, Widget? child) {
                 if (filter != null) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
