@@ -93,53 +93,56 @@ class _CharacterPageState extends State<CharacterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SearchWidget(
-              controller: _searchController,
-              enabled: _filterNotifier.value != null,
-              suffixIcon: IconButton(
-                onPressed: () {
-                  BottomSheetUtils.open(context,
-                          widget: const FilterCharacterPage())
-                      .then((value) {
-                    if (value != null) {
-                      _filterNotifier.value = value;
-                    }
-                  });
-                },
-                icon: const Icon(Icons.filter_list_sharp),
-              ),
-              onChanged: (value) {
-                filter = value.isNotEmpty;
-                query = value;
-                _pagingController.refresh();
-              },
-            ),
             ValueListenableBuilder(
               valueListenable: _filterNotifier,
               builder:
-                  (BuildContext context, FilterModel? filter, Widget? child) {
-                if (filter != null) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Filter by',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Chip(
-                            onDeleted: () {
-                              _filterNotifier.value = null;
-                              _searchController.clear();
-                              context.clearFocus();
-                            },
-                            label: Text(filter.filterName)),
-                      ],
+                  (BuildContext context, FilterModel? value, Widget? child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SearchWidget(
+                      controller: _searchController,
+                      enabled: value != null,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          BottomSheetUtils.open(context,
+                                  widget: const FilterCharacterPage())
+                              .then((value) {
+                            if (value != null) {
+                              _filterNotifier.value = value;
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.filter_list_sharp),
+                      ),
+                      onChanged: (value) {
+                        filter = value.isNotEmpty;
+                        query = value;
+                        _pagingController.refresh();
+                      },
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
+                    if (value != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Filter by',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Chip(
+                                onDeleted: () {
+                                  _filterNotifier.value = null;
+                                  _searchController.clear();
+                                  context.clearFocus();
+                                },
+                                label: Text(value.filterName)),
+                          ],
+                        ),
+                      )
+                  ],
+                );
               },
             ),
             Expanded(

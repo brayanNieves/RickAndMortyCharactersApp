@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rick_and_morty_characters_app/blocs/character_bloc.dart';
 import 'package:rick_and_morty_characters_app/local_db/db_helper.dart';
 import 'package:rick_and_morty_characters_app/pages/character/character_page.dart';
+import 'package:rick_and_morty_characters_app/services/api/api_service.dart';
 import 'package:rick_and_morty_characters_app/utils/env.dart';
 import 'package:get_it/get_it.dart';
 

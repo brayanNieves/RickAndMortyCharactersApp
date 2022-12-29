@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SearchWidget extends StatelessWidget {
@@ -17,7 +16,7 @@ class SearchWidget extends StatelessWidget {
       this.focusNode})
       : super(key: key);
 
-  final String hint = 'Filter by name, status and species';
+  final String hint = 'Search...';
   final EdgeInsetsGeometry? padding;
   final double borderRadius = 12.0;
   final ValueChanged<String>? onChanged;

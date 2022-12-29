@@ -60,6 +60,22 @@ class CharacterService extends ApiService implements CharacterApi {
   @override
   Future<WsResponse> filter(
       String searchValue, int page, String filterBy) async {
+    bool connected = await connectivity.isConnected();
+    if (!connected) {
+      List<Map<String, dynamic>> characters =
+          await getIt<DatabaseHelper>().filter(searchValue, filterBy);
+      return WsResponse(
+          data: CharacterModel.fromJson(null,
+              characters: characters
+                  .map((e) => CharacterModel(
+                      id: '${e['id']}',
+                      status: e['status'],
+                      name: e['name'],
+                      species: e['species'],
+                      gender: e['gender'],
+                      image: e['image']))
+                  .toList()));
+    }
     dynamic query = getFilter(filterBy);
     dynamic resp = await callApi(
       document: gql(

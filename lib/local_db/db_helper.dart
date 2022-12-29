@@ -1,3 +1,4 @@
+import 'package:rick_and_morty_characters_app/constants/constants.dart';
 import 'package:rick_and_morty_characters_app/models/character_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -55,7 +56,12 @@ class DatabaseHelper {
 
   Future<int> insert(Map<String, dynamic> row) async {
     try {
-      return await _db.insert(characterTable, row);
+      int exist = await queryRowCount(row[columnIdNumber]);
+      if (exist > 0) {
+        return update(row);
+      } else {
+        return await _db.insert(characterTable, row);
+      }
     } catch (e) {
       print('error $e');
     }
@@ -66,17 +72,39 @@ class DatabaseHelper {
     return await _db.query(characterTable);
   }
 
-  Future<int> queryRowCount() async {
-    final results = await _db.rawQuery('SELECT COUNT(*) FROM $characterTable');
+  Future<List<Map<String, dynamic>>> filter(
+      String query, String filterBy) async {
+    String filterByColumn = _filterByColumn(filterBy);
+    final results = await _db.query(characterTable,
+        where: '$filterByColumn LIKE ?', whereArgs: ['%$query%']);
+    return results;
+  }
+
+  String _filterByColumn(String filter) {
+    switch (filter) {
+      case Constants.FILTER_BY_NAME:
+        return columnName;
+      case Constants.FILTER_BY_SPECIES:
+        return columnSpecies;
+      case Constants.FILTER_BY_STATUS:
+        return columnStatus;
+      default:
+        return '';
+    }
+  }
+
+  Future<int> queryRowCount(int id) async {
+    final results = await _db.rawQuery(
+        'SELECT COUNT(*) FROM $characterTable where $columnIdNumber = $id');
     return Sqflite.firstIntValue(results) ?? 0;
   }
 
   Future<int> update(Map<String, dynamic> row) async {
-    int id = row[columnId];
+    int id = row[columnIdNumber];
     return await _db.update(
       characterTable,
       row,
-      where: '$columnId = ?',
+      where: '$columnIdNumber = ?',
       whereArgs: [id],
     );
   }

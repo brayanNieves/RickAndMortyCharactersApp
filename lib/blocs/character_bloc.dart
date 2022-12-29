@@ -6,10 +6,12 @@ import 'package:rick_and_morty_characters_app/main.dart';
 import 'package:rick_and_morty_characters_app/models/character_model.dart';
 import 'package:rick_and_morty_characters_app/models/ws_response.dart';
 import 'package:rick_and_morty_characters_app/repository/character_repository.dart';
+import 'package:rick_and_morty_characters_app/utils/custom_connectivity/conectivity_adapter.dart';
 
 class CharacterBloc extends Bloc {
   final _characterRepository = CharacterRepository();
   final _characterQueryController = StreamController<List<CharacterModel>>();
+  final _connectivity = ConnectivityAdapter();
 
   Stream<List<CharacterModel>> get characters =>
       _characterQueryController.stream;
@@ -27,11 +29,13 @@ class CharacterBloc extends Bloc {
 
   Future<void> _insertCharacterInLocalDb(
       List<CharacterModel> characters) async {
-    int count = characters.length;
-    if (count > 0) {
-      characters.forEach((element) async {
-        await getIt<DatabaseHelper>().insert(DatabaseHelper.toMap(element));
-      });
+    if (await _connectivity.isConnected()) {
+      int count = characters.length;
+      if (count > 0) {
+        characters.forEach((element) async {
+          await getIt<DatabaseHelper>().insert(DatabaseHelper.toMap(element));
+        });
+      }
     }
   }
 
