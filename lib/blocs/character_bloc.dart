@@ -17,11 +17,14 @@ class CharacterBloc extends Bloc {
       _characterQueryController.stream;
   late Stream<CharacterModel> articlesStream;
 
-  Future<List<CharacterModel>> getCharacter(int pageKey) async {
+  Future<List<CharacterModel>> getCharacter(int pageKey,
+      {bool insertIntoLocalDb = true}) async {
     WsResponse response = await _characterRepository.getAll(pageKey);
     if (response.success) {
       CharacterModel characterModel = response.data;
-      //_insertCharacterInLocalDb(characterModel.characters);
+      if(insertIntoLocalDb) {
+        _insertCharacterInLocalDb(characterModel.characters);
+      }
       return characterModel.characters;
     }
     return [];

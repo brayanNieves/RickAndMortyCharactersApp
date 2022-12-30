@@ -28,8 +28,10 @@ void main() {
     getIt.registerSingleton<DatabaseHelper>(DatabaseHelper(),
         signalsReady: true);
   });
+
   test('Character Test', () async {
-    List<CharacterModel> character = await characterBloc.getCharacter(1);
+    List<CharacterModel> character =
+        await characterBloc.getCharacter(1, insertIntoLocalDb: false);
     expect(CharacterModel.fromJson(actual).characters, character);
   });
 
