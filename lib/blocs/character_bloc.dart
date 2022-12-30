@@ -21,7 +21,7 @@ class CharacterBloc extends Bloc {
     WsResponse response = await _characterRepository.getAll(pageKey);
     if (response.success) {
       CharacterModel characterModel = response.data;
-      _insertCharacterInLocalDb(characterModel.characters);
+      //_insertCharacterInLocalDb(characterModel.characters);
       return characterModel.characters;
     }
     return [];
