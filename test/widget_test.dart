@@ -11,20 +11,40 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rick_and_morty_characters_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('ListView.builder respects findChildIndexCallback', (WidgetTester tester) async {
+    bool finderCalled = false;
+    int itemCount = 7;
+    late StateSetter stateSetter;
+    await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              stateSetter = setState;
+              return ListView.builder(
+                itemCount: itemCount,
+                itemBuilder: (BuildContext _, int index) => Container(
+                  key: Key('$index'),
+                  height: 2000.0,
+                ),
+                findChildIndexCallback: (Key key) {
+                  finderCalled = true;
+                  return null;
+                },
+              );
+            },
+          ),
+        )
+    );
+    expect(finderCalled, false);
+    // Trigger update.
+    stateSetter(() => itemCount = 77);
     await tester.pump();
+    expect(finderCalled, true);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('ListView.builder respects findChildIndexCallback', (WidgetTester tester) async {
+    await tester.drag(find.byKey(const Key('character-list')), const Offset(0.0, -300));
+    await tester.pump();
   });
 }

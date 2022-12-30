@@ -30,8 +30,12 @@ void main() {
   });
   test('Character Test', () async {
     List<CharacterModel> character = await characterBloc.getCharacter(1);
-    expect(
-        CharacterModel.fromJson(actual).characters,
-        character);
+    expect(CharacterModel.fromJson(actual).characters, character);
+  });
+
+  test('Character filter', () async {
+    List<CharacterModel> character =
+        await characterBloc.filterCharacter('Ricky', 1, 'name');
+    expect(CharacterModel.fromJson(actual).characters, character);
   });
 }

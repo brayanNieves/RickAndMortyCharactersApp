@@ -148,6 +148,7 @@ class _CharacterPageState extends State<CharacterPage> {
             Expanded(
               child: PagedListView<int, CharacterModel>.separated(
                 pagingController: _pagingController,
+                key: Key('character-list'),
                 padding: const EdgeInsets.only(top: 20.0),
                 builderDelegate: PagedChildBuilderDelegate<CharacterModel>(
                   itemBuilder: (context, item, index) => ListTile(
