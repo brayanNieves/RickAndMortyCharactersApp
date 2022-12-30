@@ -43,7 +43,7 @@ void main() {
     expect(finderCalled, true);
   });
 
-  testWidgets('ListView.builder respects findChildIndexCallback', (WidgetTester tester) async {
+  testWidgets('Infinite scroll test', (WidgetTester tester) async {
     await tester.drag(find.byKey(const Key('character-list')), const Offset(0.0, -300));
     await tester.pump();
   });
